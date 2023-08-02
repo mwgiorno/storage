@@ -20,4 +20,5 @@ Route::get('/', function () {
 
 Route::middleware('auth')->group(function() {
     Route::post('/files', [FileController::class, 'store'])->name('files');
+    Route::delete('/files/{file}', [FileController::class, 'destroy']);
 });

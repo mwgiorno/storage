@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\File\CreateRequest;
 use App\Models\File;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class FileController extends Controller
 {
@@ -29,5 +30,12 @@ class FileController extends Controller
             'size' => $request->file('file')->getSize(),
             'extension' => $request->file('file')->getExtension()
         ]);
+    }
+
+    public function destroy(File $file)
+    {
+        Storage::disk('files')->delete($file->path);
+
+        $file->delete();
     }
 }
