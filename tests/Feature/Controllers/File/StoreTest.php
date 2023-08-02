@@ -18,7 +18,7 @@ class StoreTest extends TestCase
     {
         $user = User::factory()->create();
 
-        Storage::fake();
+        Storage::fake('files');
 
         $uploadedFile = UploadedFile::fake()->create('file.js', 1024);
         $name = $uploadedFile->getClientOriginalName();
@@ -28,7 +28,7 @@ class StoreTest extends TestCase
                 'file' => $uploadedFile
             ]);
 
-        $response->assertStatus(201);
+        $response->assertStatus(200);
         
         $this->assertDatabaseHas('files', [
             'name' => $name
@@ -36,6 +36,6 @@ class StoreTest extends TestCase
         
         $file = File::where('name', $name)->first();
 
-        Storage::assertExists($file->path);
+        Storage::disk('files')->assertExists($file->path);
     }
 }

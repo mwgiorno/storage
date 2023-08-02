@@ -12,7 +12,10 @@ class FileController extends Controller
     {
         $userId = $request->user()->id;
         $path = $request->file('file')
-            ->store("files/{$userId}");
+            ->store(
+                "$userId",
+                'files'
+            );
 
         $name = $request->input(
             'name',
