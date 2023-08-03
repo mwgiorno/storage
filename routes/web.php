@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\FileController;
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -18,8 +18,14 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::middleware('auth')->group(function() {
+Route::middleware('auth')->group(function () {
     Route::post('/files', [FileController::class, 'store'])->name('files');
     Route::patch('/files/{file}', [FileController::class, 'update']);
     Route::delete('/files/{file}', [FileController::class, 'destroy']);
+
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+
+require __DIR__.'/auth.php';
