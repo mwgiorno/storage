@@ -10,6 +10,11 @@ use Illuminate\Support\Facades\Storage;
 
 class FileController extends Controller
 {
+    public function index()
+    {
+        return view('files.index');
+    }
+
     public function store(CreateRequest $request)
     {
         $userId = $request->user()->id;
