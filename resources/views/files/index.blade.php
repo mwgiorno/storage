@@ -17,8 +17,8 @@
                                 {{ $file->extension }}
                             </span>
                         </p>
-                        <p class="font-bold">
-                            {{ $file->name }}
+                        <p>
+                            <a href="{{ route('files.download', $file) }}" class="font-bold hover:text-indigo-500">{{ $file->name }}</a>
                         </p>
                         <p class="text-slate-500 font-semibold">
                             {{ $file->size }}

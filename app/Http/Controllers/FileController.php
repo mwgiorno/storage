@@ -89,4 +89,12 @@ class FileController extends Controller
 
         return redirect()->route('files');
     }
+
+    public function download(File $file)
+    {
+        if(Storage::disk('files')->exists($file->path)) {
+            return Storage::disk('files')->download($file->path, $file->name);
+        }
+        return abort(404, 'File Not Found');
+    }
 }

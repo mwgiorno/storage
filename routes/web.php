@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Route;
 Route::redirect('/', '/files')->name('home');
 
 Route::middleware('auth')->group(function () {
+    Route::get('/files/download/{file}', [FileController::class, 'download'])->name('files.download');
     Route::get('/files', [FileController::class, 'index'])->name('files');
     Route::get('/files/create', [FileController::class, 'create'])->name('files.create');
     Route::post('/files', [FileController::class, 'store']);
