@@ -8,7 +8,7 @@
             </a>
         </div>
 
-        <div class="grid grid-cols-4 mt-4 gap-x-4">
+        <div class="grid grid-cols-2 mt-4 gap-4">
             @foreach ($files as $file)
                 <div class="bg-white shadow rounded grid text-sm text-gray-700 divide-y">
                     <div class="grid gap-y-1 p-6">
@@ -21,7 +21,7 @@
                             <a href="{{ route('files.download', $file) }}" class="font-bold hover:text-indigo-500">{{ $file->name }}</a>
                         </p>
                         <p class="text-slate-500 font-semibold">
-                            {{ $file->size }}
+                            {{ ByteUnits\bytes($file->size)->format('MB') }}
                         </p>
                     </div>
                     <div class="grid grid-cols-2 divide-x">
