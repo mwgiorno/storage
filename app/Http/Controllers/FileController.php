@@ -10,9 +10,16 @@ use Illuminate\Support\Facades\Storage;
 
 class FileController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return view('files.index');
+        $files = $request->user()->files;
+
+        return view('files.index', compact('files'));
+    }
+
+    public function create()
+    {
+        return view('files.create');
     }
 
     public function store(CreateRequest $request)
@@ -24,10 +31,9 @@ class FileController extends Controller
                 'files'
             );
 
-        $name = $request->input(
-            'name',
-            $request->file('file')->getClientOriginalName()
-        );
+        $name = $request->filled('name') 
+            ? $request->name 
+            : $request->file('file')->getClientOriginalName();
 
         $file = File::create([
             'user_id' => $userId,
@@ -36,6 +42,8 @@ class FileController extends Controller
             'size' => $request->file('file')->getSize(),
             'extension' => $request->file('file')->extension()
         ]);
+
+        return redirect()->route('files');
     }
 
     public function update(File $file, UpdateRequest $request)
@@ -78,5 +86,7 @@ class FileController extends Controller
         Storage::disk('files')->delete($file->path);
 
         $file->delete();
+
+        return redirect()->route('files');
     }
 }

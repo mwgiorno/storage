@@ -19,9 +19,10 @@ Route::redirect('/', '/files')->name('home');
 
 Route::middleware('auth')->group(function () {
     Route::get('/files', [FileController::class, 'index'])->name('files');
+    Route::get('/files/create', [FileController::class, 'create'])->name('files.create');
     Route::post('/files', [FileController::class, 'store']);
     Route::patch('/files/{file}', [FileController::class, 'update']);
-    Route::delete('/files/{file}', [FileController::class, 'destroy']);
+    Route::delete('/files/{file}', [FileController::class, 'destroy'])->name('files.destroy');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
