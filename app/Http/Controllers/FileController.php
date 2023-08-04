@@ -7,19 +7,20 @@ use App\Http\Requests\File\UpdateRequest;
 use App\Models\File;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Inertia\Inertia;
 
 class FileController extends Controller
 {
     public function index(Request $request)
     {
-        $files = $request->user()->files;
-
-        return view('files.index', compact('files'));
+        return Inertia::render('Files/Index', [
+            'files' => $request->user()->files
+        ]);
     }
 
     public function create()
     {
-        return view('files.create');
+        return Inertia::render('Files/CreateForm');
     }
 
     public function store(CreateRequest $request)
