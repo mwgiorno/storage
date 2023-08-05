@@ -12,7 +12,7 @@ let targetFile = ref(null);
 
 function deleteFile() {
     router.delete(route('files.destroy', {file: targetFile.value.id}));
-    targetFile = null;
+    targetFile.value = null;
 }
 </script>
 
@@ -54,7 +54,7 @@ function deleteFile() {
                                 </p>
                             </div>
                             <div class="grid grid-cols-2 divide-x">
-                                <Link href="#" class="text-center py-2 text-slate-600 hover:text-indigo-600 font-bold"><i class="fa-solid fa-pen"></i> Edit</Link>
+                                <Link :href="route('files.edit', file.id)" class="text-center py-2 text-slate-600 hover:text-indigo-600 font-bold"><i class="fa-solid fa-pen"></i> Edit</Link>
                                 <button type="button" @click="targetFile = file" class="w-full text-center py-2 text-slate-600 hover:text-red-500 font-bold"><i class="fa-solid fa-trash"></i> Delete</button>
                             </div>
                     </div>

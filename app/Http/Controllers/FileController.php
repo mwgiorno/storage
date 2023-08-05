@@ -8,7 +8,6 @@ use App\Models\File;
 use App\Services\Thumbnail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Intervention\Image\Facades\Image;
 use Inertia\Inertia;
 
 class FileController extends Controller
@@ -67,39 +66,60 @@ class FileController extends Controller
         return redirect()->route('files');
     }
 
+    public function edit(File $file)
+    {
+        return Inertia::render('Files/Edit', [
+            'file' => $file
+        ]);
+    }
+
     public function update(File $file, UpdateRequest $request)
     {
-        $name = $file->name;
-        $path = $file->path;
-        $size = $file->size;
-        $extension = $file->extension;
-
         if($request->hasFile('file')) {
             Storage::disk('files')->delete($file->path);
 
-            $path = $request->file('file')
-            ->store(
-                "{$request->user()->id}",
-                'files'
-            );
+            if($file->thumbnail_path) {
+                Storage::disk('thumbnails')->delete($file->thumbnail_path);
+                $file->thumbnail_path = null;
+                $file->thumbnail_url = null;
+            }
 
-            $name = $request->input(
-                'name',
-                $request->file('file')->getClientOriginalName()
-            );
+            $file->path = $request->file('file')
+                ->store(
+                    "{$request->user()->id}",
+                    'files'
+                );
 
-            $size = $request->file('file')->getSize();
-            $extension = $request->file('file')->extension();
+            $file->name = $request->file('file')
+                ->getClientOriginalName();
+
+            $file->size = $request->file('file')->getSize();
+            $file->extension = $request->file('file')->extension();
+
+            if(exif_imagetype($request->file('file'))) {
+                $file->thumbnail_path = $request->file('file')
+                    ->store(
+                        "{$request->user()->id}",
+                        'thumbnails'
+                    );
+    
+                Thumbnail::make(
+                    Storage::disk('thumbnails')->path($file->thumbnail_path)
+                );
+    
+                $file->thumbnail_url = Storage::disk('thumbnails')
+                    ->url($file->thumbnail_path);
+            }
         }
 
-        $file->fill([
-            'name' => $name,
-            'path' => $path,
-            'size' => $size,
-            'extension' => $extension
-        ]);
+        $file->name = $request->input(
+            'name',
+            $file->name
+        );
         
         $file->save();
+
+        return to_route('files');
     }
 
     public function destroy(File $file)
