@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\Http\Requests\File\CreateRequest;
 use App\Http\Requests\File\UpdateRequest;
 use App\Models\File;
+use App\Services\Thumbnail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Intervention\Image\Facades\Image;
 use Inertia\Inertia;
 
 class FileController extends Controller
@@ -31,6 +33,22 @@ class FileController extends Controller
                 "$userId",
                 'files'
             );
+        $thumbnailUrl = null;
+        $thumbnailPath = null;
+        
+        if(exif_imagetype($request->file('file'))) {
+            $thumbnailPath = $request->file('file')
+                ->store(
+                    "$userId",
+                    'thumbnails'
+                );
+
+            Thumbnail::make(
+                Storage::disk('thumbnails')->path($thumbnailPath)
+            );
+
+            $thumbnailUrl = Storage::disk('thumbnails')->url($thumbnailPath);
+        }
 
         $name = $request->filled('name') 
             ? $request->name 
@@ -41,7 +59,9 @@ class FileController extends Controller
             'name' => $name,
             'path' => $path,
             'size' => $request->file('file')->getSize(),
-            'extension' => $request->file('file')->extension()
+            'extension' => $request->file('file')->extension(),
+            'thumbnail_url' => $thumbnailUrl,
+            'thumbnail_path' => $thumbnailPath
         ]);
 
         return redirect()->route('files');
@@ -85,6 +105,10 @@ class FileController extends Controller
     public function destroy(File $file)
     {
         Storage::disk('files')->delete($file->path);
+        
+        if($file->thumbnail_path) {
+            Storage::disk('thumbnails')->delete($file->thumbnail_path);
+        }
 
         $file->delete();
 

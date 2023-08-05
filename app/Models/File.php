@@ -20,6 +20,8 @@ class File extends Model
         'path',
         'size',
         'extension',
+        'thumbnail_url',
+        'thumbnail_path',
     ];
 
     public function user()

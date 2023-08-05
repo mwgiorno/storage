@@ -36,15 +36,18 @@ function deleteFile() {
         <div class="py-12">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                 <div class="grid grid-cols-4 mt-4 gap-4 items-start">
-                    <div v-for="file in files" :key="file.id" class="bg-white shadow rounded grid text-sm text-gray-700 divide-y">
+                    <div v-for="file in files" :key="file.id" class="bg-white shadow rounded overflow-hidden grid text-sm text-gray-700 divide-y">
                             <div class="grid gap-y-1 p-6">
                                 <p class="mb-2">
                                     <span class="bg-indigo-100 text-indigo-500 px-3 py-1 rounded-full font-bold">
                                         {{ file.extension }}
                                     </span>
                                 </p>
+                                <p v-if="file.thumbnail_url" class="mx-auto">
+                                    <img :src="file.thumbnail_url" class="object-cover">
+                                </p>
                                 <p>
-                                    <a :href="route('files.download', file.id)" class="font-bold text-ellipsis overflow-hidden hover:text-indigo-500">{{ file.name }}</a>
+                                    <a :href="route('files.download', file.id)" class="font-bold break-all hover:text-indigo-500">{{ file.name }}</a>
                                 </p>
                                 <p class="text-slate-500 font-semibold">
                                     {{ file.size }}
