@@ -14,8 +14,23 @@ class FileController extends Controller
 {
     public function index(Request $request)
     {
+        $files = $request->user()
+            ->files()
+            ->when($request->input('search'), function($query, $search) {
+                $query->where('name', 'LIKE', "%{$search}%");
+            })->paginate(50)
+            ->withQueryString();
+        
+        $total = $files->total();
+        $count = (
+                ($files->currentPage() - 1) * 
+                $files->perPage()
+            ) + $files->count();
+
         return Inertia::render('Files/Index', [
-            'files' => $request->user()->files
+            'files' => $files,
+            'total' => $total,
+            'count' => $count
         ]);
     }
 

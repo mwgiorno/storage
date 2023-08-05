@@ -1,14 +1,33 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import Modal from '@/Components/Modal.vue';
-import { Head, Link, router } from '@inertiajs/vue3';
+import Pagination from '@/Components/Pagination.vue';
+import { Head, Link, router, useForm } from '@inertiajs/vue3';
 import { ref } from 'vue';
+import byteSize from 'byte-size'
+import { watch } from 'vue';
 
 const props = defineProps({
-    files: Object,
+    files: {
+        type: Object,
+        default: () => ({}),
+    },
+    total: Number,
+    count: Number
 });
 
 let targetFile = ref(null);
+
+let search = ref('');
+watch(search, (value) => {
+  router.get(
+    "/files",
+    { search: value },
+    {
+      preserveState: true,
+    }
+  );
+}); 
 
 function deleteFile() {
     router.delete(route('files.destroy', {file: targetFile.value.id}));
@@ -22,7 +41,10 @@ function deleteFile() {
     <AuthenticatedLayout>
         <template #header>
             <div class="flex items-center justify-between">
-                <h2 class="font-semibold text-xl text-gray-800 leading-tight">Files</h2>
+                <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+                    Files
+                    <span class="text-slate-500">{{ count }}/{{ total }}</span>
+                </h2>
                 <Link
                     :href="route('files.create')"
                     class="inline-flex items-center rounded gap-x-1 bg-white px-4 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
@@ -35,8 +57,18 @@ function deleteFile() {
 
         <div class="py-12">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                <form @submit.prevent="search">
+                    <input 
+                        class="w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                        type="search"
+                        name="search"
+                        placeholder="Search"
+                        v-model="search"
+                    >
+                </form>
+
                 <div class="grid grid-cols-4 mt-4 gap-4 items-start">
-                    <div v-for="file in files" :key="file.id" class="bg-white shadow rounded overflow-hidden grid text-sm text-gray-700 divide-y">
+                    <div v-for="file in props.files.data" :key="file.id" class="bg-white shadow rounded overflow-hidden grid text-sm text-gray-700 divide-y">
                             <div class="grid gap-y-1 p-6">
                                 <p class="mb-2">
                                     <span class="bg-indigo-100 text-indigo-500 px-3 py-1 rounded-full font-bold">
@@ -50,7 +82,7 @@ function deleteFile() {
                                     <a :href="route('files.download', file.id)" class="font-bold break-all hover:text-indigo-500">{{ file.name }}</a>
                                 </p>
                                 <p class="text-slate-500 font-semibold">
-                                    {{ file.size }}
+                                    {{ byteSize(file.size) }}
                                 </p>
                             </div>
                             <div class="grid grid-cols-2 divide-x">
@@ -65,6 +97,8 @@ function deleteFile() {
                         </form>
                     </Modal>
                 </div>
+
+                <Pagination :data="props.files"/>
             </div>
         </div>
     </AuthenticatedLayout>
