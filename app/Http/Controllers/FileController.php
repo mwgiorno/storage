@@ -36,7 +36,7 @@ class FileController extends Controller
 
     public function create()
     {
-        return Inertia::render('Files/CreateForm');
+        return Inertia::render('Files/Create');
     }
 
     public function store(CreateRequest $request)

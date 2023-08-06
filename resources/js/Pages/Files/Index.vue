@@ -1,10 +1,10 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import Modal from '@/Components/Modal.vue';
+import ConfirmationModal from '@/Components/ConfirmationModal.vue';
 import Pagination from '@/Components/Pagination.vue';
 import { Head, Link, router, useForm } from '@inertiajs/vue3';
 import { ref } from 'vue';
-import byteSize from 'byte-size'
+import byteSize from 'byte-size';
 import { watch } from 'vue';
 
 const props = defineProps({
@@ -16,7 +16,7 @@ const props = defineProps({
     count: Number
 });
 
-let targetFile = ref(null);
+let deleteTarget = ref(null);
 
 let search = ref('');
 watch(search, (value) => {
@@ -30,8 +30,8 @@ watch(search, (value) => {
 }); 
 
 function deleteFile() {
-    router.delete(route('files.destroy', {file: targetFile.value.id}));
-    targetFile.value = null;
+    router.delete(route('files.destroy', {file: deleteTarget.value.id}));
+    deleteTarget.value = null;
 }
 </script>
 
@@ -87,15 +87,11 @@ function deleteFile() {
                             </div>
                             <div class="grid grid-cols-2 divide-x">
                                 <Link :href="route('files.edit', file.id)" class="text-center py-2 text-slate-600 hover:text-indigo-600 font-bold"><i class="fa-solid fa-pen"></i> Edit</Link>
-                                <button type="button" @click="targetFile = file" class="w-full text-center py-2 text-slate-600 hover:text-red-500 font-bold"><i class="fa-solid fa-trash"></i> Delete</button>
+                                <button type="button" @click="deleteTarget = file" class="w-full text-center py-2 text-slate-600 hover:text-red-500 font-bold"><i class="fa-solid fa-trash"></i> Delete</button>
                             </div>
                     </div>
-                    <Modal :show="Boolean(targetFile)">
-                        <form class="grid grid-cols-2 divide-x py-2 text-sm">
-                            <button type="button" @click="deleteFile()" class="w-full text-center py-2 text-slate-600 hover:text-indigo-500 font-bold">Confirm</button>
-                            <button type="button" @click="targetFile = null" class="w-full text-center py-2 text-slate-600 hover:text-red-500 font-bold">Cancel</button>
-                        </form>
-                    </Modal>
+                    
+                    <ConfirmationModal :show="Boolean(deleteTarget)" @confirmed="deleteFile" @canceled="deleteTarget = null"></ConfirmationModal>
                 </div>
 
                 <Pagination :data="props.files"/>

@@ -1,10 +1,11 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import InputError from '@/Components/InputError.vue';
-import InputLabel from '@/Components/InputLabel.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
+import ConfirmationModal from '@/Components/ConfirmationModal.vue';
 import TextInput from '@/Components/TextInput.vue';
-import { Head, Link, useForm } from '@inertiajs/vue3';
+import FileInput from '@/Components/FileInput.vue';
+import { Head, Link, router, useForm } from '@inertiajs/vue3';
+import byteSize from 'byte-size';
 import { ref } from 'vue';
 
 const props = defineProps({
@@ -17,28 +18,19 @@ const form = useForm({
     file: null
 });
 
-let isDragging = ref(false);
+let showDeleteConfirmation = ref(false);
+let showSaveConfirmation = ref(false);
 
-const submit = () => {
+function deleteFile() {
+    router.delete(route('files.destroy', {file: props.file.id}));
+    showDeleteConfirmation.value = false;
+}
+
+function saveFile() {
     form.post(route('files.update', props.file.id), {
         onFinish: () => form.reset(),
     });
-};
-
-function dropHandler(event) {
-    event.preventDefault();
-    form.file = event.dataTransfer.files[0];
-    isDragging.value = false;
-}
-
-function dragOverHandler(event) {
-    event.preventDefault();
-    isDragging.value = true;
-}
-
-function dragLeaveHandler(event) {
-    event.preventDefault();
-    isDragging.value = false;
+    showSaveConfirmation.value = false;
 }
 </script>
 
@@ -53,31 +45,18 @@ function dragLeaveHandler(event) {
         <div class="py-12">
             <div class="max-w-xl mx-auto sm:px-6 lg:px-8">
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
-                    <form @submit.prevent="submit" class="grid gap-y-3">
+                    <div>
+                        File: {{ file.name }}
+                    </div>
+                    <div>
+                        Extension: {{ file.extension }}
+                    </div>
+                    <div>
+                        Size: {{ byteSize(file.size) }}
+                    </div>
+                    <form @submit.prevent class="grid gap-y-3 mt-3">
                         <div>
-                            <label 
-                                @drop="dropHandler"
-                                @dragover="dragOverHandler"
-                                @dragleave="dragLeaveHandler"
-                                style="background-color: transparent;"
-                                for="file"
-                                class="w-full rounded outline-dashed bg-transparent flex justify-center items-center gap-x-1 text-gray-600 font-semibold outline-2 py-12 outline-gray-300 hover:outline-gray-400 cursor-pointer"
-                                :class="{'outline-indigo-400': isDragging}"
-                            >
-                                <div v-if="!form.file">
-                                    {{ props.file.name }}
-                                </div>
-                                <div v-else>
-                                    {{ form.file.name }}
-                                </div>
-                            </label>
-                            <input
-                                id="file"
-                                type="file"
-                                class="hidden"
-                                @input="form.file = $event.target.files[0]"
-
-                            />
+                            <FileInput v-model="form.file" />
                             <progress v-if="form.progress" :value="form.progress.percentage" max="100">
                                 {{ form.progress.percentage }}%
                             </progress>
@@ -97,15 +76,28 @@ function dragLeaveHandler(event) {
                             <InputError class="mt-2" :message="form.errors.name" />
                         </div>
 
-                        <button
-                            type="submit"
-                            class="flex w-full justify-center rounded bg-indigo-500 px-3 py-2 font-semibold leading-6 text-white shadow-sm hover:bg-indigo-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                        >
-                            Save
-                        </button>
+                        <div class="flex items-center gap-x-2">
+                            <button
+                                type="button"
+                                @click.prevent="showSaveConfirmation = true"
+                                class="flex w-full justify-center rounded border border-2 hover:border-indigo-400 px-3 py-2 font-semibold leading-6 text-gray-700 shadow-sm hover:text-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                            >
+                                Save
+                            </button>
+                            <button
+                                type="button"
+                                @click.prevent="showDeleteConfirmation = true"
+                                class="flex w-full justify-center rounded bg-white px-3 py-2 font-semibold leading-6 text-gray-700 border border-2 shadow-sm hover:text-red-500 hover:border-red-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                            >
+                                Delete
+                            </button>
+                        </div>
                     </form>
                 </div>
             </div>
         </div>
+
+        <ConfirmationModal :show="showSaveConfirmation" @confirmed="saveFile" @canceled="showSaveConfirmation = false"></ConfirmationModal>
+        <ConfirmationModal :show="showDeleteConfirmation" @confirmed="deleteFile" @canceled="showDeleteConfirmation = false"></ConfirmationModal>
     </AuthenticatedLayout>
 </template>

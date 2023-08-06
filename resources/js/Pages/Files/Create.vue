@@ -1,10 +1,9 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import InputError from '@/Components/InputError.vue';
-import InputLabel from '@/Components/InputLabel.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
+import FileInput from '@/Components/FileInput.vue';
 import TextInput from '@/Components/TextInput.vue';
-import { Head, Link, useForm } from '@inertiajs/vue3';
+import { Head, useForm } from '@inertiajs/vue3';
 import { ref } from 'vue';
 
 const form = useForm({
@@ -12,29 +11,11 @@ const form = useForm({
     file: null
 });
 
-let isDragging = ref(false);
-
 const submit = () => {
     form.post(route('files.store'), {
         onFinish: () => form.reset(),
     });
 };
-
-function dropHandler(event) {
-    event.preventDefault();
-    form.file = event.dataTransfer.files[0];
-    isDragging.value = false;
-}
-
-function dragOverHandler(event) {
-    event.preventDefault();
-    isDragging.value = true;
-}
-
-function dragLeaveHandler(event) {
-    event.preventDefault();
-    isDragging.value = false;
-}
 </script>
 
 <template>
@@ -50,30 +31,7 @@ function dragLeaveHandler(event) {
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
                     <form @submit.prevent="submit" class="grid gap-y-3">
                         <div>
-                            <label 
-                                @drop="dropHandler"
-                                @dragover="dragOverHandler"
-                                @dragleave="dragLeaveHandler"
-                                style="background-color: transparent;"
-                                for="file"
-                                class="w-full rounded outline-dashed bg-transparent flex justify-center items-center gap-x-1 text-gray-600 font-semibold outline-2 py-12 outline-gray-300 hover:outline-gray-400 cursor-pointer"
-                                :class="{'outline-indigo-400': isDragging}"
-                            >
-                                <div v-if="!form.file">
-                                    <i class="fa-regular fa-square-plus"></i>
-                                    Upload a file
-                                </div>
-                                <div v-else>
-                                    {{ form.file.name }}
-                                </div>
-                            </label>
-                            <input
-                                id="file"
-                                type="file"
-                                class="hidden"
-                                @input="form.file = $event.target.files[0]"
-
-                            />
+                            <FileInput v-model="form.file" />
                             <progress v-if="form.progress" :value="form.progress.percentage" max="100">
                                 {{ form.progress.percentage }}%
                             </progress>
