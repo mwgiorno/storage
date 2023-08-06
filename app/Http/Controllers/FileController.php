@@ -83,6 +83,8 @@ class FileController extends Controller
 
     public function edit(File $file)
     {
+        $this->authorize('view', $file);
+
         return Inertia::render('Files/Edit', [
             'file' => $file
         ]);
@@ -90,6 +92,8 @@ class FileController extends Controller
 
     public function update(File $file, UpdateRequest $request)
     {
+        $this->authorize('update', $file);
+
         if($request->hasFile('file')) {
             Storage::disk('files')->delete($file->path);
 
@@ -139,6 +143,8 @@ class FileController extends Controller
 
     public function destroy(File $file)
     {
+        $this->authorize('update', $file);
+
         Storage::disk('files')->delete($file->path);
         
         if($file->thumbnail_path) {
@@ -152,6 +158,8 @@ class FileController extends Controller
 
     public function download(File $file)
     {
+        $this->authorize('view', $file);
+        
         if(Storage::disk('files')->exists($file->path)) {
             return Storage::disk('files')->download($file->path, $file->name);
         }
