@@ -85,8 +85,9 @@ function deleteFile() {
                                     {{ byteSize(file.size) }}
                                 </p>
                             </div>
-                            <div class="grid grid-cols-2 divide-x">
+                            <div :class="file.viewable ? 'grid grid-cols-3 divide-x' : 'grid grid-cols-2 divide-x'">
                                 <Link :href="route('files.edit', file.id)" class="text-center py-2 text-slate-600 hover:text-indigo-600 font-bold"><i class="fa-solid fa-pen"></i> Edit</Link>
+                                <Link v-if="file.viewable" :href="route('files.show', file.id)" class="text-center py-2 text-slate-600 hover:text-indigo-600 font-bold"><i class="fa-solid fa-eye"></i> View</Link>
                                 <button type="button" @click="deleteTarget = file" class="w-full text-center py-2 text-slate-600 hover:text-red-500 font-bold"><i class="fa-solid fa-trash"></i> Delete</button>
                             </div>
                     </div>

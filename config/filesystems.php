@@ -58,7 +58,9 @@ return [
 
         'files' => [
             'driver' => 'local',
-            'root' => storage_path('app/files'),
+            'root' => storage_path('app/public/files'),
+            'url' => env('FILE_STORAGE_URL', env('APP_URL')).'/storage/files',
+            'visibility' => 'public',
             'throw' => true
         ],
 
@@ -66,6 +68,13 @@ return [
             'driver' => 'local',
             'root' => storage_path('app/public/thumbnails'),
             'url' => env('APP_URL').'/storage/thumbnails',
+            'visibility' => 'public',
+            'throw' => false,
+        ],
+
+        'assets' => [
+            'driver' => 'local',
+            'root' => public_path('assets'),
             'visibility' => 'public',
             'throw' => false,
         ],

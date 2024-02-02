@@ -5,14 +5,16 @@ namespace App\Http\Controllers;
 use App\Http\Requests\File\CreateRequest;
 use App\Http\Requests\File\UpdateRequest;
 use App\Models\File;
+use App\Services\OnlyOffice\FormatManager;
 use App\Services\Thumbnail;
+use Firebase\JWT\JWT;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
 class FileController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request, FormatManager $formats)
     {
         $files = $request->user()
             ->files()
@@ -20,6 +22,10 @@ class FileController extends Controller
                 $query->where('name', 'LIKE', "%{$search}%");
             })->paginate(50)
             ->withQueryString();
+        
+        foreach($files as $file) {
+            $file->viewable = $formats->viewableExtension($file->extension);
+        }
         
         $total = $files->total();
         $count = (
@@ -30,7 +36,29 @@ class FileController extends Controller
         return Inertia::render('Files/Index', [
             'files' => $files,
             'total' => $total,
-            'count' => $count
+            'count' => $count,
+        ]);
+    }
+
+    public function show(File $file, FormatManager $formats)
+    {
+        $config = [
+            'document' => [
+                'fileType' => $file->extension,
+                'key' => strval($file->id),
+                'title' => $file->name,
+                'url' => Storage::disk('files')->url($file->path)
+            ],
+            'documentType' => $formats->getDocumentType($file->extension),
+            'mode' => 'view'
+        ];
+
+        $config['token'] = JWT::encode($config, env('JWT_SECRET'), env('JWT_ALGORITHM'));
+
+        return Inertia::render('Files/Show', [
+            'file' => $file,
+            'config' => $config,
+            'serverUrl' => env('DOCUMENT_SERVER_URL')
         ]);
     }
 

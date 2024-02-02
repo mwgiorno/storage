@@ -15,6 +15,19 @@ services:
       - ./:/var/www
     networks:
       - storage
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  document-server:
+    container_name: document-server
+    image: onlyoffice/documentserver:7.5
+    restart: unless-stopped
+    ports:
+      - 8080:80
+    environment:
+      JWT_SECRET: ${JWT_SECRET}
+    networks:
+      - storage
 
   db:
     image: mysql

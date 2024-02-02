@@ -24,8 +24,9 @@
                             {{ ByteUnits\bytes($file->size)->format('MB') }}
                         </p>
                     </div>
-                    <div class="grid grid-cols-2 divide-x">
-                        <a href="" class="text-center py-2 text-slate-600 hover:text-indigo-600 font-bold"><i class="fa-solid fa-pen"></i> Edit</a>
+                    <div class="grid grid-cols-3 divide-x">
+                        <a href="" class="text-center py-2 text-slate-600 hover:text-indigo-600 font-bold"><i class="fa-solid fa-pen"></i> Edit</a>qwe
+                        <a href="#" class="text-center py-2 text-slate-600 hover:text-indigo-600 font-bold">View</a>
                         <form action="{{ route('files.destroy', $file) }}" method="POST">
                             @csrf
                             @method('DELETE')
