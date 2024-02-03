@@ -1,10 +1,9 @@
 <?php
 
 use App\Http\Controllers\FileController;
+use App\Http\Controllers\OnlyOffice\DocumentController;
 use App\Http\Controllers\ProfileController;
-use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,6 +18,8 @@ use Inertia\Inertia;
 
 Route::redirect('/', '/files');
 
+Route::post('/onlyoffice/save', [DocumentController::class, 'save'])->name('onlyoffice.save');
+
 Route::middleware('auth')->group(function () {
     Route::get('/files/download/{file}', [FileController::class, 'download'])->name('files.download');
     Route::get('/files', [FileController::class, 'index'])->name('files');
@@ -28,6 +29,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/files/{file}', [FileController::class, 'edit'])->name('files.edit');
     Route::patch('/files/{file}', [FileController::class, 'update'])->name('files.update');
     Route::delete('/files/{file}', [FileController::class, 'destroy'])->name('files.destroy');
+
+    Route::get('/onlyoffice/{file}/download', [DocumentController::class, 'download'])->name('onlyoffice.download');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

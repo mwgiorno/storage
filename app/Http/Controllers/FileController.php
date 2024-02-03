@@ -11,6 +11,7 @@ use Firebase\JWT\JWT;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
+use Illuminate\Support\Str;
 
 class FileController extends Controller
 {
@@ -25,6 +26,7 @@ class FileController extends Controller
         
         foreach($files as $file) {
             $file->viewable = $formats->viewableExtension($file->extension);
+            $file->pdfConvertible = $formats->convertibleTo($file->extension, 'pdf');
         }
         
         $total = $files->total();
@@ -49,8 +51,11 @@ class FileController extends Controller
                 'title' => $file->name,
                 'url' => Storage::disk('files')->url($file->path)
             ],
+            'editorConfig' => [
+                // 'callbackUrl' => env('STORAGE_SERVICE_URL') . '/onlyoffice/save',
+                'mode' => 'view'
+            ],
             'documentType' => $formats->getDocumentType($file->extension),
-            'mode' => 'view'
         ];
 
         $config['token'] = JWT::encode($config, env('JWT_SECRET'), env('JWT_ALGORITHM'));

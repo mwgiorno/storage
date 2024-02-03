@@ -84,6 +84,11 @@ function deleteFile() {
                                 <p class="text-slate-500 font-semibold">
                                     {{ byteSize(file.size) }}
                                 </p>
+                                <p class="mt-2" v-if="file.pdfConvertible">
+                                    <a :href="route('onlyoffice.download', file.id)" class="text-center text-red-400 hover:text-red-500 font-bold">
+                                        Download PDF version
+                                    </a>
+                                </p>
                             </div>
                             <div :class="file.viewable ? 'grid grid-cols-3 divide-x' : 'grid grid-cols-2 divide-x'">
                                 <Link :href="route('files.edit', file.id)" class="text-center py-2 text-slate-600 hover:text-indigo-600 font-bold"><i class="fa-solid fa-pen"></i> Edit</Link>

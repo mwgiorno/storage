@@ -35,4 +35,15 @@ class Format
 
         return false;
     }
+
+    public function convertibleTo($type): bool
+    {
+        foreach($this->convert as $convert) {
+            if($convert == $type) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

@@ -40,6 +40,17 @@ class FormatManager
         return false;
     }
 
+    public function convertibleTo(string $extension, string $type): bool
+    {
+        $format = $this->getFormatByExtension($extension);
+
+        if($format) {
+            return $format->convertibleTo($type);
+        }
+
+        return false;
+    }
+
     public function getDocumentType(string $extension): string
     {
         $documentType = 'word';
