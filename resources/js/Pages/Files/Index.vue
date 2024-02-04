@@ -85,7 +85,7 @@ function deleteFile() {
                                     {{ byteSize(file.size) }}
                                 </p>
                                 <p class="mt-2" v-if="file.pdfConvertible">
-                                    <a :href="route('onlyoffice.download', file.id)" class="text-center text-red-400 hover:text-red-500 font-bold">
+                                    <a :href="route('onlyoffice.download', {'file': file.id})" class="text-center text-red-400 hover:text-red-500 font-bold">
                                         Download PDF version
                                     </a>
                                 </p>

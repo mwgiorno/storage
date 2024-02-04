@@ -34,27 +34,29 @@ class DocumentController extends Controller
         return "{\"error\":0}";
     }
 
-    public function download(File $file, FormatManager $formats)
+    public function download(Request $request, FormatManager $formats)
     {
-        if($formats->convertibleTo($file->extension, 'pdf')) {
-            $config = [
-                "async" => false,
-                "filetype" => $file->extension,
-                "key" => strval($file->id),
-                "outputtype" => "pdf",
-                "title" => $file->name,
-                "url" => Storage::disk('files')->url($file->path)
-            ];
+        $file = File::find($request->input('file'));
+        
+        $config = [
+            "async" => false,
+            "filetype" => $file->extension,
+            "key" => strval($file->id),
+            "outputtype" => "pdf",
+            "title" => $file->name,
+            "url" => Storage::disk('files')->url($file->path)
+        ];
 
-            $token = JWT::encode($config, env('JWT_SECRET'), env('JWT_ALGORITHM'));
-            $content = json_encode($config);
+        $token = JWT::encode($config, env('JWT_SECRET'), env('JWT_ALGORITHM'));
+        $content = json_encode($config);
 
-            $response = Http::acceptJson()
-                ->withToken($token)
-                ->post(env('DOCUMENT_SERVER_CONVERT_SERVICE_URL'), $content);
+        $response = Http::acceptJson()
+            ->withToken($token)
+            ->post(env('DOCUMENT_SERVER_CONVERT_SERVICE_URL'), $content);
 
-            $convertedFileInfo = json_decode($response->body());
-
+        $convertedFileInfo = json_decode($response->body());
+        
+        if(property_exists($convertedFileInfo, 'fileUrl')) {
             $response = Http::get($convertedFileInfo->fileUrl);
             $contents = $response->body();
 
@@ -62,8 +64,8 @@ class DocumentController extends Controller
                 ->streamDownload(function() use($contents) {
                     echo $contents;
                 }, Str::after($convertedFileInfo->fileUrl, 'filename='));
-        }
+        }  
 
-        return abort(404, 'File Not Found');
+        return abort(500, 'An error ocurred while trying to convert the file to PDF.');
     }
 }

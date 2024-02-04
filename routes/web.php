@@ -3,6 +3,8 @@
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\OnlyOffice\DocumentController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Middleware\EnsureFileIsConvertible;
+use App\Http\Middleware\EnsureFileIsPDFConvertible;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -30,7 +32,9 @@ Route::middleware('auth')->group(function () {
     Route::patch('/files/{file}', [FileController::class, 'update'])->name('files.update');
     Route::delete('/files/{file}', [FileController::class, 'destroy'])->name('files.destroy');
 
-    Route::get('/onlyoffice/{file}/download', [DocumentController::class, 'download'])->name('onlyoffice.download');
+    Route::get('/onlyoffice/download', [DocumentController::class, 'download'])
+        ->name('onlyoffice.download')
+        ->middleware('convertible:pdf');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
